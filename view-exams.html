@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Exams - School Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>School Management System</h1>
+            </div>
+            <div class="header-actions">
+                <div class="theme-toggle">
+                    <button id="themeToggle" class="theme-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <span id="userName">Admin User</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-container">
+            <div class="dashboard-header">
+                <div class="breadcrumb">
+                    <a href="dashboard.html">Dashboard</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="grade.html" id="gradeLink">Grade</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>View Exams</span>
+                </div>
+                <h1 class="dashboard-title" id="examTitle">View Exams for Grade</h1>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 class="table-title">Available Exams</h3>
+                    <div class="table-actions">
+                        <div class="sort-controls">
+                            <select id="sortBy" class="sort-select">
+                                <option value="created_at">Sort by Date</option>
+                                <option value="exam_name">Sort by Name</option>
+                                <option value="term">Sort by Term</option>
+                                <option value="year">Sort by Year</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="toggleSortOrder()">
+                                <i class="fas fa-sort" id="sortIcon"></i>
+                                <span id="sortOrderText">Desc</span>
+                            </button>
+                        </div>
+                        <button class="btn btn-primary" onclick="window.location.href=`add-exam.html?grade=${currentGrade}`">
+                            <i class="fas fa-plus"></i>
+                            Add New Exam
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table" id="examsTable">
+                        <thead>
+                            <tr>
+                                <th>Exam Name</th>
+                                <th>Term</th>
+                                <th>Year</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="examsTableBody">
+                             Exams will be loaded here 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+             Selected Exam Marks Display 
+            <div class="exam-marks-container" id="examMarksContainer" style="display: none;">
+                <div class="table-header">
+                    <h3 class="table-title" id="selectedExamTitle">Exam Marks</h3>
+                    <div class="table-actions">
+                        <button class="btn btn-success" onclick="exportExamMarks()">
+                            <i class="fas fa-file-excel"></i>
+                            Export to Excel
+                        </button>
+                        <button class="btn btn-secondary" onclick="hideExamMarks()">
+                            <i class="fas fa-times"></i>
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="data-table marks-display-table" id="examMarksTable">
+                        <thead id="examMarksTableHead">
+                             Headers will be generated dynamically 
+                        </thead>
+                        <tbody id="examMarksTableBody">
+                             Marks will be loaded here 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        class ExamViewer {
+            constructor() {
+                this.currentGrade = new URLSearchParams(window.location.search).get('grade') || '7';
+                this.currentSortBy = 'created_at';
+                this.currentSortOrder = 'DESC';
+                this.selectedExamId = null;
+                this.subjects = ['English', 'Kiswahili', 'Math', 'Integrated Science', 'CRE', 'Social Studies', 'Pretechnical Studies', 'Agriculture', 'C&A'];
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.updatePageInfo();
+                await this.loadExams();
+                this.bindEvents();
+            }
+
+            async checkAuth() {
+                try {
+                    const response = await ApiHelper.get('api/check-auth.php');
+                    if (response.success) {
+                        this.updateUserInfo(response.user);
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                } catch (error) {
+                    window.location.href = 'login.html';
+                }
+            }
+
+            updateUserInfo(user) {
+                document.getElementById('userName').textContent = user.full_name;
+                document.getElementById('userAvatar').textContent = user.full_name.charAt(0).toUpperCase();
+                window.currentUser = user;
+            }
+
+            updatePageInfo() {
+                document.getElementById('examTitle').textContent = `View Exams for Grade ${this.currentGrade}`;
+                document.getElementById('gradeLink').href = `grade.html?grade=${this.currentGrade}`;
+                document.getElementById('gradeLink').textContent = `Grade ${this.currentGrade}`;
+                window.currentGrade = this.currentGrade;
+            }
+
+            async loadExams() {
+                try {
+                    const response = await ApiHelper.get(`api/get-exams.php?grade=${this.currentGrade}&sortBy=${this.currentSortBy}&sortOrder=${this.currentSortOrder}`);
+                    if (response.success) {
+                        this.renderExams(response.exams);
+                    }
+                } catch (error) {
+                    AlertSystem.error('Failed to load exams');
+                }
+            }
+
+            renderExams(exams) {
+                const tbody = document.getElementById('examsTableBody');
+                tbody.innerHTML = '';
+
+                if (exams.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center">No exams found for Grade ${this.currentGrade}</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                exams.forEach(exam => {
+                    const row = document.createElement('tr');
+                    const createdDate = new Date(exam.created_at).toLocaleDateString();
+                    
+                    row.innerHTML = `
+                        <td class="exam-name">${exam.exam_name}</td>
+                        <td>Term ${exam.term}</td>
+                        <td>${exam.year}</td>
+                        <td>${createdDate}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn btn-view" onclick="viewExamMarks(${exam.id})" title="View Marks">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn btn-edit" onclick="editExam(${exam.id})" title="Edit Exam">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deleteExam(${exam.id})" title="Delete Exam">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            async viewExamMarks(examId) {
+                try {
+                    const response = await ApiHelper.get(`api/get-exam-marks.php?examId=${examId}`);
+                    if (response.success) {
+                        this.selectedExamId = examId;
+                        this.renderExamMarks(response.exam, response.marks);
+                        document.getElementById('examMarksContainer').style.display = 'block';
+                        document.getElementById('examMarksContainer').scrollIntoView({ behavior: 'smooth' });
+                    }
+                } catch (error) {
+                    AlertSystem.error('Failed to load exam marks');
+                }
+            }
+
+            renderExamMarks(exam, marks) {
+                document.getElementById('selectedExamTitle').textContent = 
+                    `${exam.exam_name} - Grade ${exam.grade} - Term ${exam.term} - ${exam.year}`;
+
+                // Create table headers
+                const thead = document.getElementById('examMarksTableHead');
+                thead.innerHTML = `
+                    <tr>
+                        <th>Adm No.</th>
+                        <th>Student Name</th>
+                        ${this.subjects.map(subject => `<th>${subject}</th>`).join('')}
+                        <th>Total</th>
+                        <th>Average</th>
+                        <th>Grade</th>
+                    </tr>
+                `;
+
+                // Group marks by student
+                const studentMarks = {};
+                marks.forEach(mark => {
+                    if (!studentMarks[mark.student_id]) {
+                        studentMarks[mark.student_id] = {
+                            admission_number: mark.admission_number,
+                            full_name: mark.full_name,
+                            marks: {}
+                        };
+                    }
+                    studentMarks[mark.student_id].marks[mark.subject] = mark.marks;
+                });
+
+                // Render table body
+                const tbody = document.getElementById('examMarksTableBody');
+                tbody.innerHTML = '';
+
+                Object.values(studentMarks).forEach(student => {
+                    const row = document.createElement('tr');
+                    let total = 0;
+                    let subjectCount = 0;
+
+                    const subjectCells = this.subjects.map(subject => {
+                        const mark = student.marks[subject] || 0;
+                        if (student.marks[subject] !== undefined) {
+                            total += mark;
+                            subjectCount++;
+                        }
+                        return `<td>${mark || '-'}</td>`;
+                    }).join('');
+
+                    const average = subjectCount > 0 ? (total / subjectCount).toFixed(1) : '0.0';
+                    const grade = this.calculateGrade(parseFloat(average));
+
+                    row.innerHTML = `
+                        <td>${student.admission_number}</td>
+                        <td>${student.full_name}</td>
+                        ${subjectCells}
+                        <td class="total-marks">${total}</td>
+                        <td class="average-marks">${average}</td>
+                        <td class="grade-display ${grade.toLowerCase()}">${grade}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            calculateGrade(average) {
+                if (average >= 80) return 'A';
+                if (average >= 70) return 'B';
+                if (average >= 60) return 'C';
+                if (average >= 50) return 'D';
+                return 'E';
+            }
+
+            bindEvents() {
+                document.getElementById('sortBy').addEventListener('change', (e) => {
+                    this.currentSortBy = e.target.value;
+                    this.loadExams();
+                });
+            }
+
+            toggleSortOrder() {
+                this.currentSortOrder = this.currentSortOrder === 'ASC' ? 'DESC' : 'ASC';
+                document.getElementById('sortOrderText').textContent = this.currentSortOrder === 'ASC' ? 'Asc' : 'Desc';
+                document.getElementById('sortIcon').className = this.currentSortOrder === 'ASC' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                this.loadExams();
+            }
+        }
+
+        // Global functions
+        async function viewExamMarks(examId) {
+            await window.examViewer.viewExamMarks(examId);
+        }
+
+        function editExam(examId) {
+            window.location.href = `edit-exam.html?examId=${examId}`;
+        }
+
+        async function deleteExam(examId) {
+            if (confirm('Are you sure you want to delete this exam? This will also delete all associated marks.')) {
+                try {
+                    const response = await ApiHelper.delete(`api/delete-exam.php?examId=${examId}`);
+                    if (response.success) {
+                        AlertSystem.success('Exam deleted successfully');
+                        window.examViewer.loadExams();
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    AlertSystem.error(error.message);
+                }
+            }
+        }
+
+        function toggleSortOrder() {
+            window.examViewer.toggleSortOrder();
+        }
+
+        function hideExamMarks() {
+            document.getElementById('examMarksContainer').style.display = 'none';
+        }
+
+        function exportExamMarks() {
+            if (window.examViewer.selectedExamId) {
+                window.location.href = `api/export-exam-marks.php?examId=${window.examViewer.selectedExamId}`;
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                ApiHelper.post('api/logout.php')
+                    .then(() => {
+                        window.location.href = 'index.html';
+                    })
+                    .catch(() => {
+                        window.location.href = 'index.html';
+                    });
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.examViewer = new ExamViewer();
+        });
+    </script>
+</body>
+</html>

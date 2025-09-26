@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - School Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>School Management System</h1>
+            </div>
+            <div class="header-actions">
+                <div class="theme-toggle">
+                    <button id="themeToggle" class="theme-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <span id="userName">Admin User</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-container">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Dashboard</h1>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-info">
+                            <span class="stat-number" id="totalStudents">0</span>
+                            <span class="stat-label">Total Students</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clipboard-list"></i>
+                        <div class="stat-info">
+                            <span class="stat-number" id="totalExams">0</span>
+                            <span class="stat-label">Active Exams</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users-cog"></i>
+                        <div class="stat-info">
+                            <span class="stat-number" id="totalClubs">0</span>
+                            <span class="stat-label">Active Clubs</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grade-grid">
+                <a href="grade.html?grade=7" class="grade-card">
+                    <i class="fas fa-school"></i>
+                    <h3>GRADE 7</h3>
+                    <p>Manage Grade 7 students and activities</p>
+                    <div class="grade-stats">
+                        <span id="grade7Count">0 students</span>
+                    </div>
+                </a>
+                <a href="grade.html?grade=8" class="grade-card">
+                    <i class="fas fa-school"></i>
+                    <h3>GRADE 8</h3>
+                    <p>Manage Grade 8 students and activities</p>
+                    <div class="grade-stats">
+                        <span id="grade8Count">0 students</span>
+                    </div>
+                </a>
+                <a href="grade.html?grade=9" class="grade-card">
+                    <i class="fas fa-school"></i>
+                    <h3>GRADE 9</h3>
+                    <p>Manage Grade 9 students and activities</p>
+                    <div class="grade-stats">
+                        <span id="grade9Count">0 students</span>
+                    </div>
+                </a>
+            </div>
+
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-grid">
+                    <button class="action-card" onclick="ModalSystem.open('addStudentModal')">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Add Student</span>
+                    </button>
+                    <button class="action-card" onclick="window.location.href='exams.html'">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Create Exam</span>
+                    </button>
+                    <button class="action-card" onclick="window.location.href='payments.html'">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Manage Payments</span>
+                    </button>
+                    <button class="action-card" onclick="window.location.href='clubs.html'">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Manage Clubs</span>
+                    </button>
+                    <button class="action-card" onclick="window.location.href='notes.html'">
+                        <i class="fas fa-book"></i>
+                        <span>Upload Notes</span>
+                    </button>
+                    <button class="action-card" onclick="window.location.href='graduated.html'">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Graduated Students</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+     Add Student Modal 
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Student</h3>
+                <button class="modal-close" onclick="ModalSystem.close('addStudentModal')">&times;</button>
+            </div>
+            <form id="addStudentForm" class="auth-form">
+                <div class="form-group">
+                    <label for="studentName">Full Name</label>
+                    <input type="text" id="studentName" name="studentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentGender">Gender</label>
+                    <select id="studentGender" name="studentGender" required>
+                        <option value="">Select Gender</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentAge">Age</label>
+                    <input type="number" id="studentAge" name="studentAge" required min="10" max="20">
+                </div>
+                <div class="form-group">
+                    <label for="studentGrade">Grade</label>
+                    <select id="studentGrade" name="studentGrade" required>
+                        <option value="">Select Grade</option>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentPhoto">Passport Photo (Optional)</label>
+                    <input type="file" id="studentPhoto" name="studentPhoto" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-user-plus"></i>
+                    Add Student
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Dashboard functionality
+        class Dashboard {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                await this.loadDashboardData();
+                this.bindEvents();
+            }
+
+            async checkAuth() {
+                try {
+                    const response = await ApiHelper.get('api/check-auth.php');
+                    if (response.success) {
+                        this.updateUserInfo(response.user);
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                } catch (error) {
+                    window.location.href = 'login.html';
+                }
+            }
+
+            updateUserInfo(user) {
+                document.getElementById('userName').textContent = user.full_name;
+                document.getElementById('userAvatar').textContent = user.full_name.charAt(0).toUpperCase();
+                window.currentUser = user;
+            }
+
+            async loadDashboardData() {
+                try {
+                    const response = await ApiHelper.get('api/dashboard-stats.php');
+                    if (response.success) {
+                        this.updateStats(response.stats);
+                    }
+                } catch (error) {
+                    console.error('Failed to load dashboard data:', error);
+                }
+            }
+
+            updateStats(stats) {
+                document.getElementById('totalStudents').textContent = stats.totalStudents || 0;
+                document.getElementById('totalExams').textContent = stats.totalExams || 0;
+                document.getElementById('totalClubs').textContent = stats.totalClubs || 0;
+                document.getElementById('grade7Count').textContent = `${stats.grade7Count || 0} students`;
+                document.getElementById('grade8Count').textContent = `${stats.grade8Count || 0} students`;
+                document.getElementById('grade9Count').textContent = `${stats.grade9Count || 0} students`;
+            }
+
+            bindEvents() {
+                document.getElementById('addStudentForm').addEventListener('submit', this.handleAddStudent.bind(this));
+            }
+
+            async handleAddStudent(event) {
+                event.preventDefault();
+                
+                const form = event.target;
+                const formData = new FormData(form);
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="loading"></span> Adding Student...';
+                submitBtn.disabled = true;
+                
+                try {
+                    const response = await fetch('api/add-student.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        AlertSystem.success('Student added successfully!');
+                        form.reset();
+                        ModalSystem.close('addStudentModal');
+                        this.loadDashboardData(); // Refresh stats
+                    } else {
+                        throw new Error(data.message);
+                    }
+                } catch (error) {
+                    AlertSystem.error(error.message);
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                ApiHelper.post('api/logout.php')
+                    .then(() => {
+                        window.location.href = 'index.html';
+                    })
+                    .catch(() => {
+                        window.location.href = 'index.html';
+                    });
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new Dashboard();
+        });
+    </script>
+</body>
+</html>

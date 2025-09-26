@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Exam - School Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <h1>School Management System</h1>
+            </div>
+            <div class="header-actions">
+                <div class="theme-toggle">
+                    <button id="themeToggle" class="theme-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <span id="userName">Admin User</span>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-container">
+            <div class="dashboard-header">
+                <div class="breadcrumb">
+                    <a href="dashboard.html">Dashboard</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <a href="grade.html" id="gradeLink">Grade</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Add Exam</span>
+                </div>
+                <h1 class="dashboard-title" id="examTitle">Add Exam for Grade</h1>
+            </div>
+
+            <div class="exam-container">
+                 Step 1: Create Exam 
+                <div class="exam-step" id="step1">
+                    <div class="step-header">
+                        <h2><i class="fas fa-plus-circle"></i> Create New Exam</h2>
+                    </div>
+                    <form id="createExamForm" class="exam-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="examName">Exam Name</label>
+                                <input type="text" id="examName" name="examName" required 
+                                       placeholder="e.g., Mid-Term Exam, Final Exam">
+                            </div>
+                            <div class="form-group">
+                                <label for="examTerm">Term</label>
+                                <select id="examTerm" name="examTerm" required>
+                                    <option value="">Select Term</option>
+                                    <option value="1">Term 1</option>
+                                    <option value="2">Term 2</option>
+                                    <option value="3">Term 3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="examYear">Year</label>
+                                <input type="number" id="examYear" name="examYear" required 
+                                       min="2020" max="2030" value="2025">
+                            </div>
+                            <div class="form-group">
+                                <label for="examGrade">Grade</label>
+                                <select id="examGrade" name="examGrade" required>
+                                    <option value="">Select Grade</option>
+                                    <option value="7">Grade 7</option>
+                                    <option value="8">Grade 8</option>
+                                    <option value="9">Grade 9</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-arrow-right"></i>
+                            Create Exam & Add Marks
+                        </button>
+                    </form>
+                </div>
+
+                 Step 2: Add Marks 
+                <div class="exam-step" id="step2" style="display: none;">
+                    <div class="step-header">
+                        <h2><i class="fas fa-edit"></i> Add Exam Marks</h2>
+                        <div class="exam-info">
+                            <span id="examInfoDisplay"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="marks-container">
+                        <div class="marks-table-container">
+                            <table class="marks-table" id="marksTable">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>English</th>
+                                        <th>Kiswahili</th>
+                                        <th>Math</th>
+                                        <th>Integrated Science</th>
+                                        <th>CRE</th>
+                                        <th>Social Studies</th>
+                                        <th>Pretechnical Studies</th>
+                                        <th>Agriculture</th>
+                                        <th>C&A</th>
+                                        <th>Total</th>
+                                        <th>Average</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="marksTableBody">
+                                     Students and marks will be loaded here 
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="marks-actions">
+                            <button type="button" class="btn btn-success" onclick="saveMarks()">
+                                <i class="fas fa-save"></i>
+                                Save All Marks
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="goBackToStep1()">
+                                <i class="fas fa-arrow-left"></i>
+                                Back to Exam Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        class ExamCreator {
+            constructor() {
+                this.currentGrade = new URLSearchParams(window.location.search).get('grade') || '7';
+                this.currentExamId = null;
+                this.students = [];
+                this.subjects = ['English', 'Kiswahili', 'Math', 'Integrated Science', 'CRE', 'Social Studies', 'Pretechnical Studies', 'Agriculture', 'C&A'];
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.updatePageInfo();
+                this.bindEvents();
+            }
+
+            async checkAuth() {
+                try {
+                    const response = await ApiHelper.get('api/check-auth.php');
+                    if (response.success) {
+                        this.updateUserInfo(response.user);
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                } catch (error) {
+                    window.location.href = 'login.html';
+                }
+            }
+
+            updateUserInfo(user) {
+                document.getElementById('userName').textContent = user.full_name;
+                document.getElementById('userAvatar').textContent = user.full_name.charAt(0).toUpperCase();
+                window.currentUser = user;
+            }
+
+            updatePageInfo() {
+                document.getElementById('examTitle').textContent = `Add Exam for Grade ${this.currentGrade}`;
+                document.getElementById('gradeLink').href = `grade.html?grade=${this.currentGrade}`;
+                document.getElementById('gradeLink').textContent = `Grade ${this.currentGrade}`;
+                document.getElementById('examGrade').value = this.currentGrade;
+            }
+
+            bindEvents() {
+                document.getElementById('createExamForm').addEventListener('submit', this.handleCreateExam.bind(this));
+            }
+
+            async handleCreateExam(event) {
+                event.preventDefault();
+                
+                const form = event.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="loading"></span> Creating Exam...';
+                submitBtn.disabled = true;
+                
+                try {
+                    const response = await ApiHelper.post('api/create-exam.php', data);
+                    if (response.success) {
+                        this.currentExamId = response.examId;
+                        await this.loadStudentsForMarks(data);
+                        this.showStep2();
+                        AlertSystem.success('Exam created successfully! Now add marks for students.');
+                    } else {
+                        throw new Error(response.message);
+                    }
+                } catch (error) {
+                    AlertSystem.error(error.message);
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            }
+
+            async loadStudentsForMarks(examData) {
+                try {
+                    const response = await ApiHelper.get(`api/get-students.php?grade=${examData.examGrade}`);
+                    if (response.success) {
+                        this.students = response.students;
+                        this.renderMarksTable(examData);
+                    }
+                } catch (error) {
+                    AlertSystem.error('Failed to load students');
+                }
+            }
+
+            renderMarksTable(examData) {
+                const examInfo = `${examData.examName} - Grade ${examData.examGrade} - Term ${examData.examTerm} - ${examData.examYear}`;
+                document.getElementById('examInfoDisplay').textContent = examInfo;
+                
+                const tbody = document.getElementById('marksTableBody');
+                tbody.innerHTML = '';
+
+                this.students.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="student-info">
+                            <div class="student-name">${student.full_name}</div>
+                            <div class="student-adm">${student.admission_number}</div>
+                        </td>
+                        ${this.subjects.map(subject => `
+                            <td>
+                                <input type="number" 
+                                       class="marks-input" 
+                                       data-student-id="${student.id}" 
+                                       data-subject="${subject}"
+                                       min="0" max="100" 
+                                       placeholder="0"
+                                       onchange="calculateTotals(this)">
+                            </td>
+                        `).join('')}
+                        <td class="total-marks">0</td>
+                        <td class="average-marks">0.0</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            showStep2() {
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+            }
+
+            showStep1() {
+                document.getElementById('step1').style.display = 'block';
+                document.getElementById('step2').style.display = 'none';
+            }
+        }
+
+        // Global functions
+        function calculateTotals(input) {
+            const row = input.closest('tr');
+            const marksInputs = row.querySelectorAll('.marks-input');
+            let total = 0;
+            let validMarks = 0;
+
+            marksInputs.forEach(markInput => {
+                const value = parseInt(markInput.value) || 0;
+                if (markInput.value !== '') {
+                    total += value;
+                    validMarks++;
+                }
+            });
+
+            const average = validMarks > 0 ? (total / validMarks).toFixed(1) : '0.0';
+            
+            row.querySelector('.total-marks').textContent = total;
+            row.querySelector('.average-marks').textContent = average;
+        }
+
+        async function saveMarks() {
+            const marksData = [];
+            const rows = document.querySelectorAll('#marksTableBody tr');
+            
+            rows.forEach(row => {
+                const studentId = row.querySelector('.marks-input').dataset.studentId;
+                const marksInputs = row.querySelectorAll('.marks-input');
+                
+                marksInputs.forEach(input => {
+                    const marks = parseInt(input.value);
+                    if (!isNaN(marks) && marks >= 0) {
+                        marksData.push({
+                            examId: window.examCreator.currentExamId,
+                            studentId: studentId,
+                            subject: input.dataset.subject,
+                            marks: marks
+                        });
+                    }
+                });
+            });
+
+            if (marksData.length === 0) {
+                AlertSystem.warning('Please enter at least some marks before saving.');
+                return;
+            }
+
+            try {
+                const response = await ApiHelper.post('api/save-exam-marks.php', { marks: marksData });
+                if (response.success) {
+                    AlertSystem.success('Exam marks saved successfully!');
+                    setTimeout(() => {
+                        window.location.href = `grade.html?grade=${window.examCreator.currentGrade}`;
+                    }, 2000);
+                } else {
+                    throw new Error(response.message);
+                }
+            } catch (error) {
+                AlertSystem.error(error.message);
+            }
+        }
+
+        function goBackToStep1() {
+            window.examCreator.showStep1();
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                ApiHelper.post('api/logout.php')
+                    .then(() => {
+                        window.location.href = 'index.html';
+                    })
+                    .catch(() => {
+                        window.location.href = 'index.html';
+                    });
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.examCreator = new ExamCreator();
+        });
+    </script>
+</body>
+</html>
