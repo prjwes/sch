@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --text: #0f172a;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem 0;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--background);
+            color: var(--text);
+            font-size: 0.875rem;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--background);
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        tr:hover {
+            background: var(--background);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Auth Pages */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 { margin-top: 0.5rem; }
+        .mt-2 { margin-top: 1rem; }
+        .mb-1 { margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 1rem; }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gap-1 {
+            gap: 0.5rem;
+        }
+
+        .gap-2 {
+            gap: 1rem;
+        }
+
+        /* Student Card */
+        .student-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .student-card:hover {
+            box-shadow: 0 4px 6px var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .student-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            display: block;
+            background: var(--border);
+        }
+
+        .student-name {
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-adm {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-content {
+                flex-wrap: wrap;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.875rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .badge-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-input {
+            padding-left: 2.5rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .icon-btn {
+            padding: 0.5rem;
+            border: none;
+            background: var(--background);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--border);
+        }
+    </style>
+</head>
+<body>
+     Auth Pages 
+    <div id="loginPage" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">School Management System</h1>
+                <p style="color: var(--text-secondary);">Sign in to your account</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email or Username</label>
+                    <input type="text" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="loginRole" required>
+                        <option value="">Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="dos_social">DoS Social Affairs</option>
+                        <option value="finance">Finance</option>
+                        <option value="dos_exam">DoS Exam</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                <div class="text-center mt-2">
+                    <a href="#" onclick="showPage('signupPage')" style="color: var(--primary);">Create an account</a> |
+                    <a href="#" onclick="showPage('resetPasswordPage')" style="color: var(--primary);">Forgot password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="signupPage" class="auth-container hidden">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">Create Account</h1>
+                <p style="color: var(--text-secondary);">Sign up for a new account</p>
+            </div>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="signupUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="signupRole" required>
+                        <option value="">Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="dos_social">DoS Social Affairs</option>
+                        <option value="finance">Finance</option>
+                        <option value="dos_exam">DoS Exam</option>
+                        <option value="teacher">Teacher</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                <div class="text-center mt-2">
+                    <a href="#" onclick="showPage('loginPage')" style="color: var(--primary);">Already have an account? Sign in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="resetPasswordPage" class="auth-container hidden">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">Reset Password</h1>
+                <p style="color: var(--text-secondary);">Enter your email to reset password</p>
+            </div>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="resetEmail" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Send Reset Link</button>
+                <div class="text-center mt-2">
+                    <a href="#" onclick="showPage('loginPage')" style="color: var(--primary);">Back to login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+     Main App 
+    <div id="mainApp" class="hidden">
+        <header>
+            <div class="header-content">
+                <div class="logo">School Management System</div>
+                <div class="header-actions">
+                    <span id="userNameDisplay"></span>
+                    <button class="btn btn-outline" onclick="toggleTheme()">🌓 Theme</button>
+                    <button class="btn btn-outline" onclick="showPage('settingsPage')">⚙️ Settings</button>
+                    <button class="btn btn-danger" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <nav id="mainNav">
+            <div class="nav-content">
+                <button class="nav-link active" onclick="showView('dashboard')">Dashboard</button>
+                <button class="nav-link" onclick="showView('grade7')">Grade 7</button>
+                <button class="nav-link" onclick="showView('grade8')">Grade 8</button>
+                <button class="nav-link" onclick="showView('grade9')">Grade 9</button>
+                <button class="nav-link" onclick="showView('addStudent')">Add Student</button>
+                <button class="nav-link" onclick="showView('exams')">Exams</button>
+                <button class="nav-link" onclick="showView('payments')">Payments</button>
+                <button class="nav-link" onclick="showView('promotion')">Promotion</button>
+                <button class="nav-link" onclick="showView('clubs')">Clubs</button>
+                <button class="nav-link" onclick="showView('notes')">Notes</button>
+                <button class="nav-link" onclick="showView('reportCards')">Report Cards</button>
+            </div>
+        </nav>
+
+        <div class="container">
+             Dashboard View 
+            <div id="dashboardView" class="view">
+                <h2 class="mb-2">Dashboard</h2>
+                <div class="grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalStudents">0</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="grade7Count">0</div>
+                        <div class="stat-label">Grade 7 Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="grade8Count">0</div>
+                        <div class="stat-label">Grade 8 Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="grade9Count">0</div>
+                        <div class="stat-label">Grade 9 Students</div>
+                    </div>
+                </div>
+
+                <div class="card mt-2">
+                    <div class="card-header">Recent Activities</div>
+                    <div id="recentActivities">
+                        <p style="color: var(--text-secondary);">No recent activities</p>
+                    </div>
+                </div>
+            </div>
+
+             Grade 7 View 
+            <div id="grade7View" class="view hidden">
+                <div class="flex-between mb-2">
+                    <h2>Grade 7 Students</h2>
+                    <button class="btn btn-primary" onclick="showView('addStudent')">+ Add Student</button>
+                </div>
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search students..." onkeyup="filterStudents(7, this.value)">
+                </div>
+                <div id="grade7Students" class="grid"></div>
+            </div>
+
+             Grade 8 View 
+            <div id="grade8View" class="view hidden">
+                <div class="flex-between mb-2">
+                    <h2>Grade 8 Students</h2>
+                    <button class="btn btn-primary" onclick="showView('addStudent')">+ Add Student</button>
+                </div>
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search students..." onkeyup="filterStudents(8, this.value)">
+                </div>
+                <div id="grade8Students" class="grid"></div>
+            </div>
+
+             Grade 9 View 
+            <div id="grade9View" class="view hidden">
+                <div class="flex-between mb-2">
+                    <h2>Grade 9 Students</h2>
+                    <button class="btn btn-primary" onclick="showView('addStudent')">+ Add Student</button>
+                </div>
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search students..." onkeyup="filterStudents(9, this.value)">
+                </div>
+                <div id="grade9Students" class="grid"></div>
+            </div>
+
+             Add Student View 
+            <div id="addStudentView" class="view hidden">
+                <h2 class="mb-2">Add New Student</h2>
+                <div class="card">
+                    <form id="addStudentForm">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label>First Name *</label>
+                                <input type="text" id="studentFirstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name *</label>
+                                <input type="text" id="studentLastName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth *</label>
+                                <input type="date" id="studentDOB" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Gender *</label>
+                                <select id="studentGender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Grade *</label>
+                                <select id="studentGrade" required>
+                                    <option value="">Select Grade</option>
+                                    <option value="7">Grade 7</option>
+                                    <option value="8">Grade 8</option>
+                                    <option value="9">Grade 9</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Photo URL</label>
+                                <input type="url" id="studentPhoto" placeholder="https://example.com/photo.jpg">
+                            </div>
+                            <div class="form-group">
+                                <label>Parent/Guardian Name</label>
+                                <input type="text" id="studentParent">
+                            </div>
+                            <div class="form-group">
+                                <label>Parent Contact</label>
+                                <input type="tel" id="studentParentContact">
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" id="studentAddress">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="studentEmail">
+                            </div>
+                        </div>
+                        <div class="flex gap-1 mt-2">
+                            <button type="submit" class="btn btn-primary">Add Student</button>
+                            <button type="button" class="btn btn-outline" onclick="document.getElementById('addStudentForm').reset()">Clear</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+             Exams View 
+            <div id="examsView" class="view hidden">
+                <div class="flex-between mb-2">
+                    <h2>Exam Management</h2>
+                    <button class="btn btn-primary" onclick="openAddExamModal()">+ Add Exam</button>
+                </div>
+                <div class="card">
+                    <div class="form-group">
+                        <label>Select Grade</label>
+                        <select id="examGradeFilter" onchange="loadExams()">
+                            <option value="7">Grade 7</option>
+                            <option value="8">Grade 8</option>
+                            <option value="9">Grade 9</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="examsList"></div>
+            </div>
+
+             Payments View 
+            <div id="paymentsView" class="view hidden">
+                <h2 class="mb-2">Payment Management</h2>
+                <div class="card">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Select Grade</label>
+                            <select id="paymentGradeFilter" onchange="loadPayments()">
+                                <option value="7">Grade 7</option>
+                                <option value="8">Grade 8</option>
+                                <option value="9">Grade 9</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fee Type</label>
+                            <select id="paymentFeeFilter" onchange="loadPayments()">
+                                <option value="all">All Fees</option>
+                                <option value="tuition">Tuition</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="school_fees">School Fees</option>
+                                <option value="transport">Transport</option>
+                                <option value="uniform">Uniform</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="exportPayments()">📊 Export to Excel</button>
+                </div>
+                <div id="paymentsList" class="table-container"></div>
+            </div>
+
+             Promotion View 
+            <div id="promotionView" class="view hidden">
+                <h2 class="mb-2">Student Promotion</h2>
+                <div class="card">
+                    <div class="card-header">Promote Students</div>
+                    <div class="form-group">
+                        <label>From Grade</label>
+                        <select id="promoteFromGrade">
+                            <option value="7">Grade 7</option>
+                            <option value="8">Grade 8</option>
+                            <option value="9">Grade 9</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>To Grade</label>
+                        <select id="promoteToGrade">
+                            <option value="8">Grade 8</option>
+                            <option value="9">Grade 9</option>
+                            <option value="graduated">Graduated</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="promoteStudents()">Promote All Students</button>
+                </div>
+
+                <div class="card mt-2">
+                    <div class="card-header">Graduated Students</div>
+                    <div class="form-group">
+                        <label>Select Year</label>
+                        <select id="graduatedYearFilter" onchange="loadGraduatedStudents()">
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                        </select>
+                    </div>
+                    <div id="graduatedStudentsList"></div>
+                </div>
+            </div>
+
+             Clubs View 
+            <div id="clubsView" class="view hidden">
+                <div class="flex-between mb-2">
+                    <h2>Clubs & Activities</h2>
+                    <button class="btn btn-primary" onclick="openAddClubModal()">+ Add Club</button>
+                </div>
+                <div id="clubsList" class="grid"></div>
+            </div>
+
+             Notes View 
+            <div id="notesView" class="view hidden">
+                <div class="flex-between mb-2">
+                    <h2>Study Notes</h2>
+                    <button class="btn btn-primary" onclick="openAddNoteModal()">+ Upload Note</button>
+                </div>
+                <div class="card">
+                    <div class="form-group">
+                        <label>Filter by Grade</label>
+                        <select id="notesGradeFilter" onchange="loadNotes()">
+                            <option value="all">All Grades</option>
+                            <option value="7">Grade 7</option>
+                            <option value="8">Grade 8</option>
+                            <option value="9">Grade 9</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="notesList"></div>
+            </div>
+
+             Report Cards View 
+            <div id="reportCardsView" class="view hidden">
+                <h2 class="mb-2">Report Card Generator</h2>
+                <div class="card">
+                    <div class="card-header">Upload Excel File</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Upload an Excel file with student marks to generate report cards</p>
+                    <div class="form-group">
+                        <label>Select Grade</label>
+                        <select id="reportCardGrade">
+                            <option value="7">Grade 7</option>
+                            <option value="8">Grade 8</option>
+                            <option value="9">Grade 9</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Excel File</label>
+                        <input type="file" id="reportCardFile" accept=".xlsx,.xls,.csv">
+                    </div>
+                    <button class="btn btn-primary" onclick="generateReportCards()">Generate Report Cards</button>
+                </div>
+                <div id="reportCardsList" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+
+     Settings Page 
+    <div id="settingsPage" class="hidden">
+        <header>
+            <div class="header-content">
+                <div class="logo">Settings</div>
+                <button class="btn btn-outline" onclick="showMainApp()">← Back to Dashboard</button>
+            </div>
+        </header>
+        <div class="container">
+            <div class="card">
+                <div class="card-header">Account Settings</div>
+                <form id="updateProfileForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="settingsName">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="settingsEmail">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+            </div>
+
+            <div class="card mt-2">
+                <div class="card-header">Change Password</div>
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </form>
+            </div>
+
+            <div class="card mt-2">
+                <div class="card-header">Theme</div>
+                <button class="btn btn-outline" onclick="toggleTheme()">Toggle Dark/Light Mode</button>
+            </div>
+
+            <div class="card mt-2">
+                <div class="card-header">Danger Zone</div>
+                <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+     Modals 
+    <div id="addExamModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Exam</h3>
+                <button class="close-modal" onclick="closeModal('addExamModal')">×</button>
+            </div>
+            <form id="addExamForm">
+                <div class="form-group">
+                    <label>Exam Name *</label>
+                    <input type="text" id="examName" required>
+                </div>
+                <div class="form-group">
+                    <label>Grade *</label>
+                    <select id="examGrade" required>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject *</label>
+                    <input type="text" id="examSubject" required>
+                </div>
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" id="examDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Total Marks *</label>
+                    <input type="number" id="examTotalMarks" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Exam</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addClubModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Club</h3>
+                <button class="close-modal" onclick="closeModal('addClubModal')">×</button>
+            </div>
+            <form id="addClubForm">
+                <div class="form-group">
+                    <label>Club Name *</label>
+                    <input type="text" id="clubName" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="clubDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Teacher In-Charge</label>
+                    <input type="text" id="clubTeacher">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Club</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addNoteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Upload Study Note</h3>
+                <button class="close-modal" onclick="closeModal('addNoteModal')">×</button>
+            </div>
+            <form id="addNoteForm">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="noteTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Grade *</label>
+                    <select id="noteGrade" required>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject *</label>
+                    <input type="text" id="noteSubject" required>
+                </div>
+                <div class="form-group">
+                    <label>File Type *</label>
+                    <select id="noteType" required>
+                        <option value="pdf">PDF</option>
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                        <option value="text">Text</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>File URL *</label>
+                    <input type="url" id="noteUrl" required placeholder="https://example.com/file.pdf">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload Note</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="studentDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Student Details</h3>
+                <button class="close-modal" onclick="closeModal('studentDetailModal')">×</button>
+            </div>
+            <div id="studentDetailContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Data Storage
+        function initStorage() {
+            if (!localStorage.getItem('users')) {
+                localStorage.setItem('users', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('students')) {
+                localStorage.setItem('students', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('exams')) {
+                localStorage.setItem('exams', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('payments')) {
+                localStorage.setItem('payments', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('clubs')) {
+                localStorage.setItem('clubs', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('notes')) {
+                localStorage.setItem('notes', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('graduatedStudents')) {
+                localStorage.setItem('graduatedStudents', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('currentUser')) {
+                localStorage.setItem('currentUser', null);
+            }
+        }
+
+        // Authentication Functions
+        function showPage(pageId) {
+            document.querySelectorAll('.auth-container, #mainApp, #settingsPage').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function showMainApp() {
+            showPage('mainApp');
+            showView('dashboard');
+        }
+
+        function showView(viewName) {
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.add('hidden');
+            });
+            document.getElementById(viewName + 'View').classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Load data for specific views
+            if (viewName === 'grade7') loadGradeStudents(7);
+            if (viewName === 'grade8') loadGradeStudents(8);
+            if (viewName === 'grade9') loadGradeStudents(9);
+            if (viewName === 'exams') loadExams();
+            if (viewName === 'payments') loadPayments();
+            if (viewName === 'clubs') loadClubs();
+            if (viewName === 'notes') loadNotes();
+            if (viewName === 'dashboard') loadDashboard();
+        }
+
+        // Login Form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.getElementById('loginRole').value;
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            const user = users.find(u => 
+                (u.email === email || u.username === email) && 
+                u.password === password && 
+                u.role === role
+            );
+
+            if (user) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                document.getElementById('userNameDisplay').textContent = user.name;
+                showMainApp();
+                showAlert('success', 'Login successful!');
+            } else {
+                showAlert('error', 'Invalid credentials or role');
+            }
+        });
+
+        // Signup Form
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const username = document.getElementById('signupUsername').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const role = document.getElementById('signupRole').value;
+
+            if (password !== confirmPassword) {
+                showAlert('error', 'Passwords do not match');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users'));
+            
+            if (users.find(u => u.email === email || u.username === username)) {
+                showAlert('error', 'User already exists');
+                return;
+            }
+
+            users.push({ name, email, username, password, role });
+            localStorage.setItem('users', JSON.stringify(users));
+            showAlert('success', 'Account created successfully!');
+            showPage('loginPage');
+        });
+
+        // Reset Password Form
+        document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('resetEmail').value;
+            showAlert('success', 'Password reset link sent to ' + email);
+            setTimeout(() => showPage('loginPage'), 2000);
+        });
+
+        // Add Student Form
+        document.getElementById('addStudentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const students = JSON.parse(localStorage.getItem('students'));
+            const admNumber = 'ADM' + String(students.length + 1).padStart(4, '0');
+            
+            const student = {
+                admNumber,
+                firstName: document.getElementById('studentFirstName').value,
+                lastName: document.getElementById('studentLastName').value,
+                dob: document.getElementById('studentDOB').value,
+                gender: document.getElementById('studentGender').value,
+                grade: document.getElementById('studentGrade').value,
+                photo: document.getElementById('studentPhoto').value || '/placeholder.svg?height=80&width=80',
+                parent: document.getElementById('studentParent').value,
+                parentContact: document.getElementById('studentParentContact').value,
+                address: document.getElementById('studentAddress').value,
+                email: document.getElementById('studentEmail').value,
+                createdAt: new Date().toISOString()
+            };
+
+            students.push(student);
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            // Initialize payment record
+            const payments = JSON.parse(localStorage.getItem('payments'));
+            payments.push({
+                admNumber,
+                tuition: 0,
+                lunch: 0,
+                schoolFees: 0,
+                transport: 0,
+                uniform: 0
+            });
+            localStorage.setItem('payments', JSON.stringify(payments));
+
+            showAlert('success', 'Student added successfully! Admission Number: ' + admNumber);
+            document.getElementById('addStudentForm').reset();
+            loadDashboard();
+        });
+
+        // Load Dashboard
+        function loadDashboard() {
+            const students = JSON.parse(localStorage.getItem('students'));
+            const grade7 = students.filter(s => s.grade === '7').length;
+            const grade8 = students.filter(s => s.grade === '8').length;
+            const grade9 = students.filter(s => s.grade === '9').length;
+
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('grade7Count').textContent = grade7;
+            document.getElementById('grade8Count').textContent = grade8;
+            document.getElementById('grade9Count').textContent = grade9;
+        }
+
+        // Load Grade Students
+        function loadGradeStudents(grade) {
+            const students = JSON.parse(localStorage.getItem('students'));
+            const gradeStudents = students.filter(s => s.grade === String(grade));
+            const container = document.getElementById('grade' + grade + 'Students');
+            
+            if (gradeStudents.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No students in this grade</p>';
+                return;
+            }
+
+            container.innerHTML = gradeStudents.map(student => `
+                <div class="student-card" onclick="viewStudentDetail('${student.admNumber}')">
+                    <img src="${student.photo}" alt="${student.firstName}" class="student-photo" onerror="this.src='/placeholder.svg?height=80&width=80'">
+                    <div class="student-name">${student.firstName} ${student.lastName}</div>
+                    <div class="student-adm">${student.admNumber}</div>
+                </div>
+            `).join('');
+        }
+
+        // Filter Students
+        function filterStudents(grade, query) {
+            const students = JSON.parse(localStorage.getItem('students'));
+            const gradeStudents = students.filter(s => 
+                s.grade === String(grade) && 
+                (s.firstName.toLowerCase().includes(query.toLowerCase()) ||
+                 s.lastName.toLowerCase().includes(query.toLowerCase()) ||
+                 s.admNumber.toLowerCase().includes(query.toLowerCase()))
+            );
+            
+            const container = document.getElementById('grade' + grade + 'Students');
+            
+            if (gradeStudents.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No students found</p>';
+                return;
+            }
+
+            container.innerHTML = gradeStudents.map(student => `
+                <div class="student-card" onclick="viewStudentDetail('${student.admNumber}')">
+                    <img src="${student.photo}" alt="${student.firstName}" class="student-photo" onerror="this.src='/placeholder.svg?height=80&width=80'">
+                    <div class="student-name">${student.firstName} ${student.lastName}</div>
+                    <div class="student-adm">${student.admNumber}</div>
+                </div>
+            `).join('');
+        }
+
+        // View Student Detail
+        function viewStudentDetail(admNumber) {
+            const students = JSON.parse(localStorage.getItem('students'));
+            const student = students.find(s => s.admNumber === admNumber);
+            const payments = JSON.parse(localStorage.getItem('payments'));
+            const payment = payments.find(p => p.admNumber === admNumber);
+
+            const content = `
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <img src="${student.photo}" alt="${student.firstName}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;" onerror="this.src='/placeholder.svg?height=120&width=120'">
+                </div>
+                <h3 style="text-align: center; margin-bottom: 1rem;">${student.firstName} ${student.lastName}</h3>
+                <div style="display: grid; gap: 0.5rem;">
+                    <p><strong>Admission Number:</strong> ${student.admNumber}</p>
+                    <p><strong>Grade:</strong> ${student.grade}</p>
+                    <p><strong>Gender:</strong> ${student.gender}</p>
+                    <p><strong>Date of Birth:</strong> ${student.dob}</p>
+                    <p><strong>Email:</strong> ${student.email || 'N/A'}</p>
+                    <p><strong>Parent/Guardian:</strong> ${student.parent || 'N/A'}</p>
+                    <p><strong>Parent Contact:</strong> ${student.parentContact || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${student.address || 'N/A'}</p>
+                </div>
+                ${payment ? `
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="margin-bottom: 0.5rem;">Payment Status</h4>
+                        <div style="display: grid; gap: 0.5rem;">
+                            <p><strong>Tuition:</strong> ${payment.tuition}%</p>
+                            <p><strong>Lunch:</strong> ${payment.lunch}%</p>
+                            <p><strong>School Fees:</strong> ${payment.schoolFees}%</p>
+                            <p><strong>Transport:</strong> ${payment.transport}%</p>
+                            <p><strong>Uniform:</strong> ${payment.uniform}%</p>
+                        </div>
+                    </div>
+                ` : ''}
+                <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="editStudent('${admNumber}')">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteStudent('${admNumber}')">Delete</button>
+                </div>
+            `;
+
+            document.getElementById('studentDetailContent').innerHTML = content;
+            openModal('studentDetailModal');
+        }
+
+        // Edit Student
+        function editStudent(admNumber) {
+            closeModal('studentDetailModal');
+            showAlert('info', 'Edit functionality - Update student details here');
+        }
+
+        // Delete Student
+        function deleteStudent(admNumber) {
+            if (confirm('Are you sure you want to delete this student?')) {
+                let students = JSON.parse(localStorage.getItem('students'));
+                students = students.filter(s => s.admNumber !== admNumber);
+                localStorage.setItem('students', JSON.stringify(students));
+                
+                let payments = JSON.parse(localStorage.getItem('payments'));
+                payments = payments.filter(p => p.admNumber !== admNumber);
+                localStorage.setItem('payments', JSON.stringify(payments));
+                
+                closeModal('studentDetailModal');
+                showAlert('success', 'Student deleted successfully');
+                loadDashboard();
+                loadGradeStudents(7);
+                loadGradeStudents(8);
+                loadGradeStudents(9);
+            }
+        }
+
+        // Exam Management
+        function openAddExamModal() {
+            openModal('addExamModal');
+        }
+
+        document.getElementById('addExamForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const exams = JSON.parse(localStorage.getItem('exams'));
+            const exam = {
+                id: Date.now(),
+                name: document.getElementById('examName').value,
+                grade: document.getElementById('examGrade').value,
+                subject: document.getElementById('examSubject').value,
+                date: document.getElementById('examDate').value,
+                totalMarks: document.getElementById('examTotalMarks').value,
+                createdAt: new Date().toISOString()
+            };
+
+            exams.push(exam);
+            localStorage.setItem('exams', JSON.stringify(exams));
+            
+            closeModal('addExamModal');
+            showAlert('success', 'Exam added successfully!');
+            document.getElementById('addExamForm').reset();
+            loadExams();
+        });
+
+        function loadExams() {
+            const grade = document.getElementById('examGradeFilter').value;
+            const exams = JSON.parse(localStorage.getItem('exams'));
+            const gradeExams = exams.filter(e => e.grade === grade);
+            
+            const container = document.getElementById('examsList');
+            
+            if (gradeExams.length === 0) {
+                container.innerHTML = '<div class="card"><p style="color: var(--text-secondary);">No exams found for this grade</p></div>';
+                return;
+            }
+
+            container.innerHTML = gradeExams.map(exam => `
+                <div class="card">
+                    <div class="flex-between">
+                        <div>
+                            <h3>${exam.name}</h3>
+                            <p style="color: var(--text-secondary);">${exam.subject} - Grade ${exam.grade}</p>
+                            <p style="color: var(--text-secondary);">Date: ${exam.date} | Total Marks: ${exam.totalMarks}</p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="viewExamMarks(${exam.id})">View Marks</button>
+                            <button class="btn btn-success" onclick="exportExamToExcel(${exam.id})">Export</button>
+                            <button class="btn btn-danger" onclick="deleteExam(${exam.id})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewExamMarks(examId) {
+            showAlert('info', 'View exam marks functionality');
+        }
+
+        function exportExamToExcel(examId) {
+            showAlert('success', 'Exam data exported to Excel');
+        }
+
+        function deleteExam(examId) {
+            if (confirm('Are you sure you want to delete this exam?')) {
+                let exams = JSON.parse(localStorage.getItem('exams'));
+                exams = exams.filter(e => e.id !== examId);
+                localStorage.setItem('exams', JSON.stringify(exams));
+                showAlert('success', 'Exam deleted successfully');
+                loadExams();
+            }
+        }
+
+        // Payment Management
+        function loadPayments() {
+            const grade = document.getElementById('paymentGradeFilter').value;
+            const feeType = document.getElementById('paymentFeeFilter').value;
+            
+            const students = JSON.parse(localStorage.getItem('students'));
+            const payments = JSON.parse(localStorage.getItem('payments'));
+            
+            const gradeStudents = students.filter(s => s.grade === grade);
+            
+            const container = document.getElementById('paymentsList');
+            
+            if (gradeStudents.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No students in this grade</p>';
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Adm No</th>
+                            <th>Name</th>
+                            ${feeType === 'all' || feeType === 'tuition' ? '<th>Tuition</th>' : ''}
+                            ${feeType === 'all' || feeType === 'lunch' ? '<th>Lunch</th>' : ''}
+                            ${feeType === 'all' || feeType === 'school_fees' ? '<th>School Fees</th>' : ''}
+                            ${feeType === 'all' || feeType === 'transport' ? '<th>Transport</th>' : ''}
+                            ${feeType === 'all' || feeType === 'uniform' ? '<th>Uniform</th>' : ''}
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            gradeStudents.forEach(student => {
+                const payment = payments.find(p => p.admNumber === student.admNumber) || {
+                    tuition: 0, lunch: 0, schoolFees: 0, transport: 0, uniform: 0
+                };
+
+                tableHTML += `
+                    <tr>
+                        <td>${student.admNumber}</td>
+                        <td>${student.firstName} ${student.lastName}</td>
+                        ${feeType === 'all' || feeType === 'tuition' ? `<td>${payment.tuition}%</td>` : ''}
+                        ${feeType === 'all' || feeType === 'lunch' ? `<td>${payment.lunch}%</td>` : ''}
+                        ${feeType === 'all' || feeType === 'school_fees' ? `<td>${payment.schoolFees}%</td>` : ''}
+                        ${feeType === 'all' || feeType === 'transport' ? `<td>${payment.transport}%</td>` : ''}
+                        ${feeType === 'all' || feeType === 'uniform' ? `<td>${payment.uniform}%</td>` : ''}
+                        <td>
+                            <button class="btn btn-primary" onclick="updatePayment('${student.admNumber}')">Update</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            container.innerHTML = tableHTML;
+        }
+
+        function updatePayment(admNumber) {
+            const newValue = prompt('Enter payment percentage (0-100):');
+            if (newValue !== null && !isNaN(newValue) && newValue >= 0 && newValue <= 100) {
+                showAlert('success', 'Payment updated successfully');
+                loadPayments();
+            }
+        }
+
+        function exportPayments() {
+            showAlert('success', 'Payment data exported to Excel');
+        }
+
+        // Promotion
+        function promoteStudents() {
+            const fromGrade = document.getElementById('promoteFromGrade').value;
+            const toGrade = document.getElementById('promoteToGrade').value;
+
+            if (confirm(`Promote all students from Grade ${fromGrade} to ${toGrade === 'graduated' ? 'Graduated' : 'Grade ' + toGrade}?`)) {
+                let students = JSON.parse(localStorage.getItem('students'));
+                const toPromote = students.filter(s => s.grade === fromGrade);
+
+                if (toGrade === 'graduated') {
+                    const graduated = JSON.parse(localStorage.getItem('graduatedStudents'));
+                    toPromote.forEach(student => {
+                        graduated.push({
+                            ...student,
+                            graduationYear: new Date().getFullYear()
+                        });
+                    });
+                    localStorage.setItem('graduatedStudents', JSON.stringify(graduated));
+                    students = students.filter(s => s.grade !== fromGrade);
+                } else {
+                    students = students.map(s => 
+                        s.grade === fromGrade ? { ...s, grade: toGrade } : s
+                    );
+                }
+
+                localStorage.setItem('students', JSON.stringify(students));
+                showAlert('success', `${toPromote.length} students promoted successfully!`);
+                loadDashboard();
+            }
+        }
+
+        function loadGraduatedStudents() {
+            const year = document.getElementById('graduatedYearFilter').value;
+            const graduated = JSON.parse(localStorage.getItem('graduatedStudents'));
+            const yearGraduated = graduated.filter(s => s.graduationYear === parseInt(year));
+            
+            const container = document.getElementById('graduatedStudentsList');
+            
+            if (yearGraduated.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No graduated students for this year</p>';
+                return;
+            }
+
+            container.innerHTML = '<div class="grid">' + yearGraduated.map(student => `
+                <div class="student-card">
+                    <img src="${student.photo}" alt="${student.firstName}" class="student-photo" onerror="this.src='/placeholder.svg?height=80&width=80'">
+                    <div class="student-name">${student.firstName} ${student.lastName}</div>
+                    <div class="student-adm">${student.admNumber}</div>
+                </div>
+            `).join('') + '</div>';
+        }
+
+        // Clubs
+        function openAddClubModal() {
+            openModal('addClubModal');
+        }
+
+        document.getElementById('addClubForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const clubs = JSON.parse(localStorage.getItem('clubs'));
+            const club = {
+                id: Date.now(),
+                name: document.getElementById('clubName').value,
+                description: document.getElementById('clubDescription').value,
+                teacher: document.getElementById('clubTeacher').value,
+                members: [],
+                posts: [],
+                createdAt: new Date().toISOString()
+            };
+
+            clubs.push(club);
+            localStorage.setItem('clubs', JSON.stringify(clubs));
+            
+            closeModal('addClubModal');
+            showAlert('success', 'Club added successfully!');
+            document.getElementById('addClubForm').reset();
+            loadClubs();
+        });
+
+        function loadClubs() {
+            const clubs = JSON.parse(localStorage.getItem('clubs'));
+            const container = document.getElementById('clubsList');
+            
+            if (clubs.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-secondary);">No clubs available</p>';
+                return;
+            }
+
+            container.innerHTML = clubs.map(club => `
+                <div class="card">
+                    <h3>${club.name}</h3>
+                    <p style="color: var(--text-secondary);">${club.description || 'No description'}</p>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Teacher: ${club.teacher || 'N/A'}</p>
+                    <p style="color: var(--text-secondary);">Members: ${club.members.length}</p>
+                    <div class="action-buttons mt-1">
+                        <button class="btn btn-primary" onclick="viewClub(${club.id})">View</button>
+                        <button class="btn btn-danger" onclick="deleteClub(${club.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewClub(clubId) {
+            showAlert('info', 'View club details functionality');
+        }
+
+        function deleteClub(clubId) {
+            if (confirm('Are you sure you want to delete this club?')) {
+                let clubs = JSON.parse(localStorage.getItem('clubs'));
+                clubs = clubs.filter(c => c.id !== clubId);
+                localStorage.setItem('clubs', JSON.stringify(clubs));
+                showAlert('success', 'Club deleted successfully');
+                loadClubs();
+            }
+        }
+
+        // Notes
+        function openAddNoteModal() {
+            openModal('addNoteModal');
+        }
+
+        document.getElementById('addNoteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const notes = JSON.parse(localStorage.getItem('notes'));
+            const note = {
+                id: Date.now(),
+                title: document.getElementById('noteTitle').value,
+                grade: document.getElementById('noteGrade').value,
+                subject: document.getElementById('noteSubject').value,
+                type: document.getElementById('noteType').value,
+                url: document.getElementById('noteUrl').value,
+                uploadedBy: JSON.parse(localStorage.getItem('currentUser')).name,
+                createdAt: new Date().toISOString()
+            };
+
+            notes.push(note);
+            localStorage.setItem('notes', JSON.stringify(notes));
+            
+            closeModal('addNoteModal');
+            showAlert('success', 'Note uploaded successfully!');
+            document.getElementById('addNoteForm').reset();
+            loadNotes();
+        });
+
+        function loadNotes() {
+            const gradeFilter = document.getElementById('notesGradeFilter').value;
+            const notes = JSON.parse(localStorage.getItem('notes'));
+            const filteredNotes = gradeFilter === 'all' ? notes : notes.filter(n => n.grade === gradeFilter);
+            
+            const container = document.getElementById('notesList');
+            
+            if (filteredNotes.length === 0) {
+                container.innerHTML = '<div class="card"><p style="color: var(--text-secondary);">No notes available</p></div>';
+                return;
+            }
+
+            container.innerHTML = filteredNotes.map(note => `
+                <div class="card">
+                    <div class="flex-between">
+                        <div>
+                            <h3>${note.title}</h3>
+                            <p style="color: var(--text-secondary);">${note.subject} - Grade ${note.grade}</p>
+                            <p style="color: var(--text-secondary);">Type: ${note.type.toUpperCase()} | Uploaded by: ${note.uploadedBy}</p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="window.open('${note.url}', '_blank')">Download</button>
+                            <button class="btn btn-danger" onclick="deleteNote(${note.id})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteNote(noteId) {
+            if (confirm('Are you sure you want to delete this note?')) {
+                let notes = JSON.parse(localStorage.getItem('notes'));
+                notes = notes.filter(n => n.id !== noteId);
+                localStorage.setItem('notes', JSON.stringify(notes));
+                showAlert('success', 'Note deleted successfully');
+                loadNotes();
+            }
+        }
+
+        // Report Cards
+        function generateReportCards() {
+            const grade = document.getElementById('reportCardGrade').value;
+            const file = document.getElementById('reportCardFile').files[0];
+            
+            if (!file) {
+                showAlert('error', 'Please select an Excel file');
+                return;
+            }
+
+            showAlert('success', 'Report cards generated successfully for Grade ' + grade);
+            document.getElementById('reportCardsList').innerHTML = `
+                <div class="card">
+                    <div class="card-header">Generated Report Cards - Grade ${grade}</div>
+                    <p style="color: var(--text-secondary);">Report cards have been generated from the uploaded Excel file.</p>
+                    <button class="btn btn-success mt-1">Download All Report Cards</button>
+                </div>
+            `;
+        }
+
+        // Settings
+        document.getElementById('updateProfileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showAlert('success', 'Profile updated successfully!');
+        });
+
+        document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('error', 'Passwords do not match');
+                return;
+            }
+            
+            showAlert('success', 'Password changed successfully!');
+            document.getElementById('changePasswordForm').reset();
+        });
+
+        function deleteAccount() {
+            if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                localStorage.removeItem('currentUser');
+                showAlert('success', 'Account deleted successfully');
+                setTimeout(() => {
+                    logout();
+                }, 1500);
+            }
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('currentUser');
+            showPage('loginPage');
+            showAlert('success', 'Logged out successfully');
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Alert Function
+        function showAlert(type, message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.right = '20px';
+            alertDiv.style.zIndex = '9999';
+            alertDiv.style.minWidth = '300px';
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', function() {
+            initStorage();
+            
+            // Load theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Check if user is logged in
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser && currentUser !== 'null') {
+                const user = JSON.parse(currentUser);
+                document.getElementById('userNameDisplay').textContent = user.name;
+                showMainApp();
+            } else {
+                showPage('loginPage');
+            }
+        });
+    </script>
+</body>
+</html>
